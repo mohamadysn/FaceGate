@@ -1,0 +1,55 @@
+name: Publish Quarto docs
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Inject repository site-url
+        run: |
+          SITE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          sed -i "s|https://mohamadysn.github.io/FaceGate/|${SITE_URL}|g" docs/_quarto.yml
+          # Keep repo-url aligned with the pushed repository.
+          sed -i "s|^  repo-url:.*|  repo-url: ${REPO_URL}|" docs/_quarto.yml
+          sed -i "s|href: https://github.com/mohamadysn/FaceGate|href: ${REPO_URL}|g" docs/_quarto.yml
+          echo "site-url -> ${SITE_URL}"
+          echo "repo-url -> ${REPO_URL}"
+
+      - name: Render Quarto site
+        run: quarto render docs
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
