@@ -61,3 +61,13 @@ eye-tracking/face-recognition/gallery/
   gallery.json
   embeddings.npy
 ```
+
+## Gallery export / import
+
+```bash
+python face-recognition/gallery_io.py export -o ~/facegate-gallery.zip
+python face-recognition/gallery_io.py import -i ~/facegate-gallery.zip
+python face-recognition/gallery_io.py import -i ~/facegate-gallery.zip --replace
+```
+
+The ZIP contains embeddings (biometric data). See [Privacy & GDPR](privacy.qmd).

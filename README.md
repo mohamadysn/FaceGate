@@ -118,8 +118,9 @@ python app/install_desktop_shortcut.py
 | Camera enrollment | NEAR + FAR capture |
 | Photo enrollment | Images + crop / zoom / rotate; merge into existing identity |
 | Recognize image | Still-image matching |
-| Gallery | List / delete identities |
+| Gallery | List / export / import / delete identities |
 | Settings | Profile, camera, provider, threshold |
+| Privacy / GDPR | Short legal notice for biometric data |
 
 ## CLI quick start
 
@@ -172,18 +173,43 @@ Specs / slides: `eye-tracking/docs/`
 - Wrong person → raise threshold (e.g. `0.45`)
 - Re-enroll after big appearance changes
 
+## Packaging
+
+Run from the **repo root** (folder that contains `pyproject.toml`):
+
+```bash
+pip install -e ".[build]"
+facegate                                 # console script
+bash scripts/build_pyinstaller.sh        # → dist/FaceGate/
+bash scripts/build_deb.sh                # needs fpm + prior PyInstaller build
+```
+
+Windows: `scripts\build_pyinstaller.bat`, then `packaging/FaceGate.iss` (Inno Setup). Details: [docs/packaging.qmd](docs/packaging.qmd).
+
+Gallery backup CLI:
+
+```bash
+cd eye-tracking
+python face-recognition/gallery_io.py export -o gallery-backup.zip
+python face-recognition/gallery_io.py import -i gallery-backup.zip
+```
+
+Privacy notice: [docs/privacy.qmd](docs/privacy.qmd) and the **Privacy / GDPR** page in the desktop app.
+
 ## Tests
 
 ```bash
 cd eye-tracking
 python -m unittest discover -s tests -v
+
+# Optional live camera integration (off by default):
+FACEGATE_CAMERA_TESTS=1 python -m unittest tests.test_camera_integration -v
 ```
 
-Unit suite (~50 tests): gallery match/merge/remove, tracking confirmation, quality gates,
-profiles, metrics, calibration YAML, camera helpers, desktop platform utilities.
-No webcam / InsightFace required. CI runs on **every push** and pull request
+Unit suite: gallery match/merge/export/import, tracking, quality, profiles, metrics,
+calibration YAML, camera helpers, desktop utilities. Camera integration tests require
+`FACEGATE_CAMERA_TESTS=1` (or `auto`). CI runs on **every push** and pull request
 ([`.github/workflows/tests.yml`](.github/workflows/tests.yml)).
-
 ## Documentation site
 
 Sources: [`docs/`](docs/) (Quarto). CI workflow: [`.github/workflows/docs.yml`](.github/workflows/docs.yml).

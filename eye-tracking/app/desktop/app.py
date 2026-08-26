@@ -152,6 +152,7 @@ class FaceRecogApp:
             ("recognize_img", "Recognize image"),
             ("gallery", "Gallery"),
             ("settings", "Settings"),
+            ("legal", "Privacy / GDPR"),
         ]
         for key, label in nav_items:
             btn = tk.Button(
@@ -193,6 +194,7 @@ class FaceRecogApp:
         self.pages["recognize_img"] = self._build_recognize_img_page(self.content)
         self.pages["gallery"] = self._build_gallery_page(self.content)
         self.pages["settings"] = self._build_settings_page(self.content)
+        self.pages["legal"] = self._build_legal_page(self.content)
 
     def _show_page(self, name: str) -> None:
         if name != "live":
@@ -759,6 +761,8 @@ class FaceRecogApp:
             style="Accent.TButton",
             command=self._gallery_add_photos,
         ).pack(side=tk.LEFT, padx=8)
+        ttk.Button(row, text="Export…", command=self._export_gallery).pack(side=tk.LEFT, padx=8)
+        ttk.Button(row, text="Import…", command=self._import_gallery).pack(side=tk.LEFT, padx=8)
         ttk.Button(row, text="Delete selected", style="Danger.TButton", command=self._delete_selected).pack(
             side=tk.LEFT, padx=8
         )
@@ -796,6 +800,48 @@ class FaceRecogApp:
             return
         name = self.gallery_tree.item(sel[0], "values")[0]
         self._prepare_add_photos_for(name)
+
+    def _export_gallery(self) -> None:
+        path = filedialog.asksaveasfilename(
+            title="Export FaceGate gallery",
+            defaultextension=".zip",
+            filetypes=[("FaceGate gallery", "*.zip"), ("All files", "*.*")],
+            initialfile="facegate-gallery.zip",
+        )
+        if not path:
+            return
+        try:
+            out = self.services.export_gallery(Path(path))
+            messagebox.showinfo(
+                "Export",
+                f"Exported to:\n{out}\n\n"
+                "This ZIP contains biometric embeddings. Store it securely (GDPR).",
+            )
+            self._set_status(f"Exported gallery → {Path(out).name}")
+        except Exception as exc:
+            messagebox.showerror("Export failed", str(exc))
+
+    def _import_gallery(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Import FaceGate gallery",
+            filetypes=[("FaceGate gallery", "*.zip"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        merge = messagebox.askyesno(
+            "Import mode",
+            "Merge into the current gallery?\n\n"
+            "Yes = merge by name (update existing)\n"
+            "No = replace the entire local gallery",
+        )
+        try:
+            n = self.services.import_gallery(Path(path), merge=bool(merge))
+            self._refresh_gallery_list()
+            self._refresh_enroll_name_choices()
+            messagebox.showinfo("Import", f"Imported {n} identities.")
+            self._set_status(f"Imported {n} identities")
+        except Exception as exc:
+            messagebox.showerror("Import failed", str(exc))
 
     def _delete_selected(self) -> None:
         sel = self.gallery_tree.selection()
@@ -840,6 +886,50 @@ class FaceRecogApp:
         ttk.Button(page, text="Save settings", style="Accent.TButton", command=self._save_settings).pack(
             anchor="w", pady=16
         )
+        return page
+
+    def _build_legal_page(self, parent) -> ttk.Frame:
+        page = ttk.Frame(parent, style="Main.TFrame")
+        ttk.Label(page, text="Privacy / GDPR", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(
+            page,
+            text="Short legal notice for biometric data processing",
+            style="Muted.TLabel",
+        ).pack(anchor="w", pady=(0, 12))
+
+        notice = (
+            "FaceGate stores face embeddings (numeric vectors), not photo files, "
+            "in the local gallery (gallery.json + embeddings.npy).\n\n"
+            "Under the GDPR (EU 2016/679), biometric data used for identification "
+            "is special-category personal data. You are responsible for lawful "
+            "processing when you enroll other people:\n"
+            "  • obtain a clear, informed consent (or another valid legal basis);\n"
+            "  • inform people that recognition data is stored on this device;\n"
+            "  • keep the gallery and exported ZIP archives secure;\n"
+            "  • delete identities on request (Gallery → Delete selected).\n\n"
+            "Exported archives contain biometric embeddings — treat them as "
+            "confidential personal data. Do not upload them to public repos "
+            "or untrusted cloud storage.\n\n"
+            "This application is provided for research / personal / educational "
+            "use. The author does not process your gallery data remotely; "
+            "everything stays on your machine unless you export or copy it.\n\n"
+            "Full notice: https://mohamadysn.github.io/FaceGate/privacy.html"
+        )
+        box = tk.Text(
+            page,
+            wrap="word",
+            height=22,
+            width=72,
+            bg=PANEL,
+            fg=TEXT,
+            relief="flat",
+            padx=12,
+            pady=12,
+            font=ui_font(10),
+        )
+        box.pack(fill=tk.BOTH, expand=True)
+        box.insert("1.0", notice)
+        box.configure(state="disabled")
         return page
 
     def _save_settings(self) -> None:

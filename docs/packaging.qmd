@@ -1,0 +1,56 @@
+---
+title: "Packaging & installers"
+---
+
+## Python package (`pyproject.toml`)
+
+From the **repository root** (where `pyproject.toml` lives — not `eye-tracking/`):
+
+```bash
+cd /path/to/FaceGate   # or: projet-face-recog-main
+python -m pip install -e ".[build]"
+facegate   # launches the desktop app
+```
+
+Editable install puts `common` and `app` on the path (packages under `eye-tracking/`).
+
+## PyInstaller (portable binary)
+
+```bash
+pip install -e ".[build]"
+bash scripts/build_pyinstaller.sh        # Linux / macOS
+scripts\build_pyinstaller.bat            # Windows
+```
+
+Output: `dist/FaceGate/` (onedir) or `dist/FaceGate` (onefile, depending on the `.spec`).
+
+The entry point freezes `eye-tracking/app/run_desktop.py` so Tkinter + OpenCV start without a separate Python install. InsightFace model weights still download on first run if missing.
+
+## `.deb` (Debian / Ubuntu)
+
+After a successful PyInstaller build:
+
+```bash
+bash scripts/build_deb.sh
+```
+
+Requires [`fpm`](https://fpm.readthedocs.io/) (`gem install fpm` or distro package). Produces `dist/facegate_*.deb` installing under `/opt/facegate` with a `facegate` wrapper in `/usr/local/bin`.
+
+## `.msi` (Windows)
+
+1. Build with `scripts\build_pyinstaller.bat`
+2. Wrap `dist\FaceGate\` with [WiX](https://wixtoolset.org/) or [Inno Setup](https://jrsoftware.org/isinfo.php)
+
+A minimal Inno Setup script is provided at `packaging/FaceGate.iss`. Open it in Inno Setup Compiler and build the installer (`.exe` setup; WiX can produce a true `.msi` if required by your deployment policy).
+
+## Gallery backup
+
+```bash
+cd eye-tracking
+python face-recognition/gallery_io.py export -o ~/facegate-gallery.zip
+python face-recognition/gallery_io.py import -i ~/facegate-gallery.zip
+# replace entire gallery:
+python face-recognition/gallery_io.py import -i ~/facegate-gallery.zip --replace
+```
+
+Treat ZIP exports as **biometric personal data** (see [Privacy & GDPR](privacy.qmd)).

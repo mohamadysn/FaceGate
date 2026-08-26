@@ -1,0 +1,35 @@
+---
+title: "Privacy & GDPR"
+---
+
+## Short legal notice
+
+**FaceGate** is a local desktop application. Gallery data stays on your machine unless you export or copy it.
+
+### What is stored
+
+| Artifact | Content |
+|----------|---------|
+| `gallery.json` | Identity names, sample counts, match threshold |
+| `embeddings.npy` | Face **embeddings** (numeric vectors), not photo files |
+| Export ZIP | Same files + a short README |
+
+Photos used during enrollment are processed in memory (or via your chosen image paths) and are **not** kept in the gallery by default.
+
+### GDPR (EU 2016/679)
+
+Biometric data used to uniquely identify a person is **special-category** personal data. If you enroll someone other than yourself, **you** are the controller for that processing. In particular:
+
+1. **Lawful basis** — typically **explicit consent**, or another basis allowed by Article 9.
+2. **Transparency** — tell people that FaceGate stores recognition embeddings on this device.
+3. **Security** — protect the gallery folder and any exported ZIP archives.
+4. **Rights** — delete an identity from **Gallery → Delete selected**, or erase the gallery files / import with replace.
+5. **Minimisation** — enroll only what you need; do not publish gallery archives.
+
+FaceGate does **not** send gallery data to a remote server as part of normal operation.
+
+### Disclaimer
+
+This notice is informational and is **not legal advice**. Adapt it to your organisation’s policies and local law. For research or classroom demos, prefer voluntary enrollment of consenting participants.
+
+Full project docs: [About](about.qmd) · Repository: [github.com/mohamadysn/FaceGate](https://github.com/mohamadysn/FaceGate)

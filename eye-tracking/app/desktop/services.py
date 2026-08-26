@@ -224,6 +224,15 @@ class AppServices:
             self.invalidate_models()
         return ok
 
+    def export_gallery(self, path: Path) -> Path:
+        out = self.gallery().export_archive(path)
+        return out
+
+    def import_gallery(self, path: Path, *, merge: bool = True) -> int:
+        n = self.gallery().import_archive(path, merge=merge)
+        self.invalidate_models()
+        return n
+
 
 def embed_one(recognizer: FaceRecognizer, frame, refine_small: bool):
     faces = recognizer.analyze(

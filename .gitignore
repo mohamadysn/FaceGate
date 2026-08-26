@@ -1,0 +1,61 @@
+# --- Python ---
+.venv/
+venv/
+env/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Local / personal data (do not push) ---
+eye-tracking/face-recognition/gallery/embeddings.npy
+eye-tracking/face-recognition/gallery/gallery.json
+eye-tracking/camera-calibration/calib_imgs/
+eye-tracking/gaze-estimation/artifacts/
+eye-tracking/performance-metrics/logs/
+captures/
+GGEyeTracking/
+
+# Training / experiment artifacts
+eye-tracking/face-recognition/remake/data/
+eye-tracking/face-recognition/remake/runs/
+eye-tracking/face-recognition/remake/test_imgs/
+eye-tracking/face-recognition/retinaface-remake/data/
+eye-tracking/face-recognition/retinaface-remake/runs/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# InsightFace / ONNX model caches
+~/.insightface/
+.insightface/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- Logs / temp ---
+*.log
+/tmp/
+*.tmp
+
+# Quarto
+docs/_site/
+docs/.quarto/
+**/_freeze/
+
+# Generated desktop install (machine-specific absolute paths)
+eye-tracking/app/face-recognition.local.desktop

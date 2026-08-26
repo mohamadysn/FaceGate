@@ -26,8 +26,9 @@ python app/install_desktop_shortcut.py
 | **Camera enrollment** | NEAR then FAR capture with quality gates |
 | **Photo enrollment** | Import images, crop / zoom / rotate, merge into existing identity |
 | **Recognize image** | Match a still photo against the gallery |
-| **Gallery** | List identities, add photos, delete |
+| **Gallery** | List identities, add photos, **export / import** ZIP, delete |
 | **Settings** | Profile (`fast` / `balanced` / `accurate`), camera index, ONNX provider, threshold |
+| **Privacy / GDPR** | Short legal notice for biometric embeddings |
 
 ## Profiles
 

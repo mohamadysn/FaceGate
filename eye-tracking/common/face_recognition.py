@@ -205,6 +205,102 @@ class FaceGallery:
             return True
         return False
 
+    def export_archive(self, path: PathLike) -> Path:
+        """
+        Export the gallery to a ZIP (``gallery.json`` + ``embeddings.npy``).
+
+        Useful for backup / migration between machines. Contains biometric
+        embeddings — treat the archive as sensitive personal data.
+        """
+        import zipfile
+
+        self.save()
+        out = Path(path).expanduser().resolve()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            if self.json_path.is_file():
+                zf.write(self.json_path, arcname="gallery.json")
+            if self.npy_path.is_file():
+                zf.write(self.npy_path, arcname="embeddings.npy")
+            zf.writestr(
+                "README.txt",
+                (
+                    "FaceGate gallery export\n"
+                    "Contains face embeddings (not photos).\n"
+                    "Handle as personal / biometric data (GDPR).\n"
+                ),
+            )
+        return out
+
+    def import_archive(self, path: PathLike, *, merge: bool = True) -> int:
+        """
+        Import identities from a FaceGate gallery ZIP.
+
+        Parameters
+        ----------
+        path :
+            ZIP produced by :meth:`export_archive`.
+        merge :
+            If True, merge imported people into the current gallery
+            (same name → replace embedding). If False, replace the whole
+            gallery with the archive contents.
+
+        Returns
+        -------
+        int
+            Number of identities loaded from the archive.
+        """
+        import tempfile
+        import zipfile
+
+        archive = Path(path).expanduser().resolve()
+        if not archive.is_file():
+            raise FileNotFoundError(f"Gallery archive not found: {archive}")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            with zipfile.ZipFile(archive, "r") as zf:
+                names = set(zf.namelist())
+                if "gallery.json" not in names or "embeddings.npy" not in names:
+                    raise ValueError("Invalid gallery archive: missing gallery.json or embeddings.npy")
+                zf.extract("gallery.json", tmp_path)
+                zf.extract("embeddings.npy", tmp_path)
+            incoming = FaceGallery(tmp_path)
+            if len(incoming) == 0:
+                return 0
+            if not merge:
+                self.entries = [
+                    GalleryEntry(
+                        name=e.name,
+                        embedding=e.embedding.copy(),
+                        n_samples=e.n_samples,
+                    )
+                    for e in incoming.entries
+                ]
+                self.match_threshold = incoming.match_threshold
+                self.save()
+                return len(self.entries)
+
+            for entry in incoming.entries:
+                self.enroll(
+                    entry.name,
+                    [entry.embedding],
+                    replace=True,
+                    merge=False,
+                    weights=[float(max(1, entry.n_samples))],
+                )
+                # Preserve sample count from archive when replacing.
+                for i, e in enumerate(self.entries):
+                    if e.name == entry.name:
+                        self.entries[i] = GalleryEntry(
+                            name=entry.name,
+                            embedding=self.entries[i].embedding,
+                            n_samples=entry.n_samples,
+                        )
+                        break
+            self.save()
+            return len(incoming)
+
     def match(
         self,
         embedding: np.ndarray,

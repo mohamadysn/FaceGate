@@ -30,6 +30,10 @@ website:
         text: CLI reference
       - href: fair.qmd
         text: FAIR practices
+      - href: packaging.qmd
+        text: Packaging
+      - href: privacy.qmd
+        text: Privacy / GDPR
       - href: about.qmd
         text: About
   navbar:
@@ -43,6 +47,10 @@ website:
         text: Desktop
       - href: modules.qmd
         text: Modules
+      - href: packaging.qmd
+        text: Packaging
+      - href: privacy.qmd
+        text: Privacy
       - href: about.qmd
         text: About
     right:

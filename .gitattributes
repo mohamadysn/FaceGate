@@ -1,0 +1,7 @@
+# Normalize text; keep Office docs as binary
+* text=auto eol=lf
+*.odt binary
+*.odp binary
+*.png binary
+*.npy binary
+*.yml linguist-language=YAML
