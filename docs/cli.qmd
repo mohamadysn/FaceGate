@@ -1,0 +1,63 @@
+---
+title: "CLI reference"
+---
+
+Run all commands from `eye-tracking/` with the virtualenv activated.
+
+## Enroll (webcam)
+
+```bash
+python face-recognition/enroll.py --name Alice --provider CPUExecutionProvider
+```
+
+Captures **NEAR** then **FAR** samples with quality checks.
+
+## Enroll (images)
+
+```bash
+python face-recognition/enroll_image.py --name Alice --images photo1.jpg photo2.png
+python face-recognition/enroll_image.py --name Alice --images ./photos_alice/
+```
+
+## Live recognition
+
+```bash
+python face-recognition/recognize_live.py --profile balanced --provider CPUExecutionProvider
+python face-recognition/recognize_live.py --profile fast
+python face-recognition/recognize_live.py --profile accurate
+```
+
+Useful flags: `--camera`, `--threshold`, `--max-faces`, `--min-face-ratio`, `--no-mirror`.
+
+## Recognize a still image
+
+```bash
+python face-recognition/recognize_image.py --image test.jpg --show
+python face-recognition/recognize_image.py --image test.jpg --save out.jpg
+```
+
+## Unified pipeline
+
+```bash
+python app/run_pipeline.py --recognize --provider CPUExecutionProvider
+python app/run_pipeline.py --recognize --enable-log
+```
+
+## Calibration & gaze (optional)
+
+```bash
+python camera-calibration/take_photo.py
+python camera-calibration/calibration.py
+python gaze-estimation/run_calibration.py
+python pupil-segmentation/run_demo.py
+```
+
+## Gallery location
+
+Artifacts (gitignored when personal):
+
+```
+eye-tracking/face-recognition/gallery/
+  gallery.json
+  embeddings.npy
+```

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FaceGate
+Comment=FaceGate — enroll and recognize faces from webcam or photos
+# Prefer: python app/install_desktop_shortcut.py
+Exec=PLACEHOLDER_EXEC
+Icon=PLACEHOLDER_ICON
+Path=PLACEHOLDER_PATH
+Terminal=false
+StartupNotify=true
+Categories=Utility;
+StartupWMClass=Tk

@@ -1,0 +1,21 @@
+---
+title: "About"
+---
+
+## Author
+
+This project was **developed by [Mohamad Yassine](https://github.com/mohamadysn)**.
+
+- Profile: [github.com/mohamadysn](https://github.com/mohamadysn)
+- Repository: [github.com/mohamadysn/FaceGate](https://github.com/mohamadysn/FaceGate)
+- Docs: [mohamadysn.github.io/FaceGate](https://mohamadysn.github.io/FaceGate/)
+
+## Project
+
+**FaceGate** is a cross-platform desktop application and CLI suite for:
+
+- enrolling and recognizing faces (webcam or photos)
+- optional pupil segmentation and gaze estimation
+- session performance metrics
+
+Built with Python, OpenCV, InsightFace, and Tkinter. Documentation is authored in Quarto and published via GitHub Pages.

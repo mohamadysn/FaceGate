@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Portable Unix launcher (Linux / macOS). Double-click or run from a terminal.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+# Resolve symlinks when possible
+if command -v readlink >/dev/null 2>&1; then
+  if readlink -f "$0" >/dev/null 2>&1; then
+    HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  fi
+fi
+EYE="$(cd "$HERE/.." && pwd)"
+ROOT="$(cd "$EYE/.." && pwd)"
+
+if [[ -x "$ROOT/.venv/bin/python" ]]; then
+  PYTHON="$ROOT/.venv/bin/python"
+elif [[ -x "$EYE/.venv/bin/python" ]]; then
+  PYTHON="$EYE/.venv/bin/python"
+else
+  PYTHON="$(command -v python3 || command -v python)"
+fi
+
+cd "$EYE"
+exec "$PYTHON" "$HERE/launch.py" "$@"

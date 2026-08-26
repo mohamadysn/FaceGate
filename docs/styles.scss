@@ -1,0 +1,15 @@
+/*-- scss:defaults --*/
+$link-color: #0284c7;
+$navbar-bg: #0f172a;
+$navbar-fg: #f8fafc;
+$sidebar-bg: #f8fafc;
+
+/*-- scss:rules --*/
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+div.sidebar-item-container .active {
+  font-weight: 600;
+}

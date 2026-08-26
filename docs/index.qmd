@@ -1,0 +1,47 @@
+---
+title: "FaceGate"
+subtitle: "Real-time identity matching from a webcam or photos"
+author: "Mohamad Yassine"
+---
+
+## Overview
+
+This project was **developed by [Mohamad Yassine](https://github.com/mohamadysn)**.
+
+Repository: [https://github.com/mohamadysn/FaceGate](https://github.com/mohamadysn/FaceGate)
+
+It provides a **cross-platform desktop application** and CLIs for:
+
+1. **Enrolling** people (camera NEAR/FAR or photo albums)
+2. **Recognizing** them live or on still images
+3. Optionally tracking **pupils** and **gaze**, plus session **metrics**
+
+Stack: Python · OpenCV · InsightFace · Tkinter · Quarto docs.
+
+## Quick links
+
+| Go to | Description |
+|-------|-------------|
+| [Getting started](getting-started.qmd) | Install on Linux / Windows / macOS |
+| [Desktop app](desktop-app.qmd) | GUI pages and shortcuts |
+| [Modules](modules.qmd) | Repository layout |
+| [CLI reference](cli.qmd) | Enroll / recognize commands |
+| [FAIR practices](fair.qmd) | Findable, Accessible, Interoperable, Reusable |
+| [About](about.qmd) | Author & project |
+
+## Architecture (high level)
+
+```{mermaid}
+flowchart LR
+  Cam[Webcam / photos] --> App[Desktop app / CLI]
+  App --> Det[Face detect]
+  Det --> Emb[Embeddings]
+  Emb --> Gal[(Gallery JSON + NPY)]
+  Emb --> Match[Cosine match]
+  Match --> UI[Identity overlay]
+  Det --> Pupil[Pupil / gaze optional]
+```
+
+## License & privacy
+
+The on-disk gallery stores **embeddings only** (no face photos). Do not commit personal `gallery.json` / `embeddings.npy` files.

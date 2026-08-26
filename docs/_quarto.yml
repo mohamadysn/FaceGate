@@ -1,0 +1,66 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "FaceGate"
+  description: "FaceGate — desktop face recognition + optional eye / gaze tracking — developed by Mohamad Yassine"
+  site-url: https://mohamadysn.github.io/FaceGate/
+  favicon: assets/favicon.png
+  repo-url: https://github.com/mohamadysn/FaceGate
+  repo-actions: [edit, issue]
+  page-navigation: true
+  bread-crumbs: true
+  page-footer:
+    left: "Developed by [Mohamad Yassine](https://github.com/mohamadysn)"
+    right: "&copy; Mohamad Yassine · [FaceGate](https://github.com/mohamadysn/FaceGate)"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - href: index.qmd
+        text: Home
+      - href: getting-started.qmd
+        text: Getting started
+      - href: desktop-app.qmd
+        text: Desktop app
+      - href: modules.qmd
+        text: Modules
+      - href: cli.qmd
+        text: CLI reference
+      - href: fair.qmd
+        text: FAIR practices
+      - href: about.qmd
+        text: About
+  navbar:
+    background: primary
+    left:
+      - href: index.qmd
+        text: Home
+      - href: getting-started.qmd
+        text: Install
+      - href: desktop-app.qmd
+        text: Desktop
+      - href: modules.qmd
+        text: Modules
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/mohamadysn/FaceGate
+        aria-label: GitHub — FaceGate
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    link-external-newwindow: true
+    smooth-scroll: true
+
+execute:
+  freeze: auto

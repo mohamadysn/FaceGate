@@ -1,0 +1,16 @@
+{
+  "match_threshold": 0.42,
+  "embedding_dim": 512,
+  "people": [
+    {
+      "name": "Mohamad Yassine",
+      "n_samples": 20,
+      "index": 0
+    },
+    {
+      "name": "Jana Yassin",
+      "n_samples": 2,
+      "index": 1
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+---
+title: "Modules"
+---
+
+## Layout
+
+```
+FaceGate/
+├── README.md
+├── requirements.txt
+├── requirements-train.txt
+├── docs/                     # This Quarto website
+└── eye-tracking/
+    ├── app/                  # Desktop GUI + pipeline
+    ├── common/               # Shared library
+    ├── webcam-capture/
+    ├── camera-calibration/
+    ├── face-recognition/     # Gallery + enroll / recognize CLIs
+    ├── pupil-segmentation/
+    ├── gaze-estimation/
+    ├── performance-metrics/
+    ├── docs/                 # Specs / slides (ODT, ODP)
+    └── tests/
+```
+
+## Module map
+
+| Module | Role | Entry points |
+|--------|------|----------------|
+| `app/` | Desktop GUI + unified pipeline | `launch.py`, `run_pipeline.py` |
+| `face-recognition/` | Enroll & recognize | `enroll.py`, `recognize_live.py`, `enroll_image.py`, `recognize_image.py` |
+| `webcam-capture/` | Webcam preview | `input-camera.py` |
+| `camera-calibration/` | Intrinsics (chessboard) | `take_photo.py`, `calibration.py` |
+| `pupil-segmentation/` | Eye / pupil localization | `run_demo.py` |
+| `gaze-estimation/` | Gaze calibration & pointer | `run_calibration.py` |
+| `performance-metrics/` | Session metrics / logs | pipeline `--enable-log` |
+| `common/` | Reusable library | gallery, engine, camera_io, quality, … |
+
+## Pipeline stages
+
+When you run `python app/run_pipeline.py --recognize`:
+
+1. **webcam-capture** — grab frame  
+2. **camera-calibration** — optional undistortion  
+3. **face-recognition** — detect (+ identify)  
+4. **pupil-segmentation** — eye ROI + pupils  
+5. **gaze-estimation** — pointer if a model exists  
+6. **performance-metrics** — HUD / JSONL log  
+
+## Shared library highlights
+
+| Module | Responsibility |
+|--------|----------------|
+| `common/face_recognition.py` | Gallery + InsightFace matcher (`merge` enroll supported) |
+| `common/engine.py` | Threaded realtime recognition |
+| `common/camera_io.py` | Cross-platform webcam open / display helpers |
+| `common/profiles.py` | `fast` / `balanced` / `accurate` |
+| `common/quality.py` | Blur / size / frontal gates |

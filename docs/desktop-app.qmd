@@ -1,0 +1,57 @@
+---
+title: "Desktop application"
+---
+
+## Launch FaceGate
+
+```bash
+cd eye-tracking
+python app/launch.py
+```
+
+Or install a shortcut:
+
+```bash
+python app/install_desktop_shortcut.py
+```
+
+- **Linux**: if the `.desktop` icon opens as text → right-click → **Allow Launching**
+- **macOS**: first open may need right-click → **Open** (Gatekeeper)
+
+## Pages
+
+| Page | Purpose |
+|------|---------|
+| **Live recognition** | Webcam detection every frame; identity in the background |
+| **Camera enrollment** | NEAR then FAR capture with quality gates |
+| **Photo enrollment** | Import images, crop / zoom / rotate, merge into existing identity |
+| **Recognize image** | Match a still photo against the gallery |
+| **Gallery** | List identities, add photos, delete |
+| **Settings** | Profile (`fast` / `balanced` / `accurate`), camera index, ONNX provider, threshold |
+
+## Profiles
+
+| Profile | Goal |
+|---------|------|
+| `fast` | Higher FPS |
+| `balanced` | Default trade-off |
+| `accurate` | Best recognition quality |
+
+Green box = known person · Orange = Unknown.
+
+## Photo editor
+
+When enrolling from images you can:
+
+- Zoom (scroll / buttons)
+- Pan (drag)
+- Crop (draw rectangle → Apply crop)
+- Rotate 90°
+- Reset / navigate multi-image batches
+
+## Merge vs replace
+
+For someone already in the gallery:
+
+- **Add to person** — blend new embeddings into the existing profile
+- **Replace completely** — overwrite the stored identity

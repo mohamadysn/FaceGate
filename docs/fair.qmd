@@ -1,0 +1,35 @@
+---
+title: "FAIR practices"
+author: "Mohamad Yassine"
+---
+
+This project was **developed by [Mohamad Yassine](https://github.com/mohamadysn)** and follows **FAIR** principles for research software and artifacts.
+
+| Principle | How it is applied |
+|-----------|-------------------|
+| **Findable** | Clear module folders (`face-recognition/`, …), gallery under a fixed path, Quarto docs site |
+| **Accessible** | CLI `--help`, CPU default, desktop GUI, published documentation pages |
+| **Interoperable** | Cosine similarity on InsightFace embeddings; OpenCV YAML camera calibration |
+| **Reusable** | Shared `common/` package used by GUI, CLIs, and the unified pipeline |
+
+## Documentation as a webpage
+
+This site is built with [Quarto](https://quarto.org) and published by GitHub Actions to **GitHub Pages** on every push to `main`.
+
+Author profile: [github.com/mohamadysn](https://github.com/mohamadysn)  
+Repository: [github.com/mohamadysn/FaceGate](https://github.com/mohamadysn/FaceGate)
+
+Local preview:
+
+```bash
+cd docs
+quarto preview
+```
+
+Build only:
+
+```bash
+quarto render docs
+```
+
+Output: `docs/_site/`.

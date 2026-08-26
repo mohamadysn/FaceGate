@@ -1,0 +1,393 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This project was developed by Mohamad Yassine.\n\nProfile: github.com/mohamadysn\nRepository: github.com/mohamadysn/FaceGate\nDocs: mohamadysn.github.io/FaceGate",
+    "crumbs": [
+      "Home",
+      "About"
+    ]
+  },
+  {
+    "objectID": "about.html#author",
+    "href": "about.html#author",
+    "title": "About",
+    "section": "",
+    "text": "This project was developed by Mohamad Yassine.\n\nProfile: github.com/mohamadysn\nRepository: github.com/mohamadysn/FaceGate\nDocs: mohamadysn.github.io/FaceGate",
+    "crumbs": [
+      "Home",
+      "About"
+    ]
+  },
+  {
+    "objectID": "about.html#project",
+    "href": "about.html#project",
+    "title": "About",
+    "section": "Project",
+    "text": "Project\nFaceGate is a cross-platform desktop application and CLI suite for:\n\nenrolling and recognizing faces (webcam or photos)\noptional pupil segmentation and gaze estimation\nsession performance metrics\n\nBuilt with Python, OpenCV, InsightFace, and Tkinter. Documentation is authored in Quarto and published via GitHub Pages.",
+    "crumbs": [
+      "Home",
+      "About"
+    ]
+  },
+  {
+    "objectID": "modules.html",
+    "href": "modules.html",
+    "title": "Modules",
+    "section": "",
+    "text": "FaceGate/\n├── README.md\n├── requirements.txt\n├── requirements-train.txt\n├── docs/                     # This Quarto website\n└── eye-tracking/\n    ├── app/                  # Desktop GUI + pipeline\n    ├── common/               # Shared library\n    ├── webcam-capture/\n    ├── camera-calibration/\n    ├── face-recognition/     # Gallery + enroll / recognize CLIs\n    ├── pupil-segmentation/\n    ├── gaze-estimation/\n    ├── performance-metrics/\n    ├── docs/                 # Specs / slides (ODT, ODP)\n    └── tests/",
+    "crumbs": [
+      "Home",
+      "Modules"
+    ]
+  },
+  {
+    "objectID": "modules.html#layout",
+    "href": "modules.html#layout",
+    "title": "Modules",
+    "section": "",
+    "text": "FaceGate/\n├── README.md\n├── requirements.txt\n├── requirements-train.txt\n├── docs/                     # This Quarto website\n└── eye-tracking/\n    ├── app/                  # Desktop GUI + pipeline\n    ├── common/               # Shared library\n    ├── webcam-capture/\n    ├── camera-calibration/\n    ├── face-recognition/     # Gallery + enroll / recognize CLIs\n    ├── pupil-segmentation/\n    ├── gaze-estimation/\n    ├── performance-metrics/\n    ├── docs/                 # Specs / slides (ODT, ODP)\n    └── tests/",
+    "crumbs": [
+      "Home",
+      "Modules"
+    ]
+  },
+  {
+    "objectID": "modules.html#module-map",
+    "href": "modules.html#module-map",
+    "title": "Modules",
+    "section": "Module map",
+    "text": "Module map\n\n\n\n\n\n\n\n\nModule\nRole\nEntry points\n\n\n\n\napp/\nDesktop GUI + unified pipeline\nlaunch.py, run_pipeline.py\n\n\nface-recognition/\nEnroll & recognize\nenroll.py, recognize_live.py, enroll_image.py, recognize_image.py\n\n\nwebcam-capture/\nWebcam preview\ninput-camera.py\n\n\ncamera-calibration/\nIntrinsics (chessboard)\ntake_photo.py, calibration.py\n\n\npupil-segmentation/\nEye / pupil localization\nrun_demo.py\n\n\ngaze-estimation/\nGaze calibration & pointer\nrun_calibration.py\n\n\nperformance-metrics/\nSession metrics / logs\npipeline --enable-log\n\n\ncommon/\nReusable library\ngallery, engine, camera_io, quality, …",
+    "crumbs": [
+      "Home",
+      "Modules"
+    ]
+  },
+  {
+    "objectID": "modules.html#pipeline-stages",
+    "href": "modules.html#pipeline-stages",
+    "title": "Modules",
+    "section": "Pipeline stages",
+    "text": "Pipeline stages\nWhen you run python app/run_pipeline.py --recognize:\n\nwebcam-capture — grab frame\n\ncamera-calibration — optional undistortion\n\nface-recognition — detect (+ identify)\n\npupil-segmentation — eye ROI + pupils\n\ngaze-estimation — pointer if a model exists\n\nperformance-metrics — HUD / JSONL log",
+    "crumbs": [
+      "Home",
+      "Modules"
+    ]
+  },
+  {
+    "objectID": "modules.html#shared-library-highlights",
+    "href": "modules.html#shared-library-highlights",
+    "title": "Modules",
+    "section": "Shared library highlights",
+    "text": "Shared library highlights\n\n\n\n\n\n\n\nModule\nResponsibility\n\n\n\n\ncommon/face_recognition.py\nGallery + InsightFace matcher (merge enroll supported)\n\n\ncommon/engine.py\nThreaded realtime recognition\n\n\ncommon/camera_io.py\nCross-platform webcam open / display helpers\n\n\ncommon/profiles.py\nfast / balanced / accurate\n\n\ncommon/quality.py\nBlur / size / frontal gates",
+    "crumbs": [
+      "Home",
+      "Modules"
+    ]
+  },
+  {
+    "objectID": "fair.html",
+    "href": "fair.html",
+    "title": "FAIR practices",
+    "section": "",
+    "text": "This project was developed by Mohamad Yassine and follows FAIR principles for research software and artifacts.",
+    "crumbs": [
+      "Home",
+      "FAIR practices"
+    ]
+  },
+  {
+    "objectID": "fair.html#documentation-as-a-webpage",
+    "href": "fair.html#documentation-as-a-webpage",
+    "title": "FAIR practices",
+    "section": "Documentation as a webpage",
+    "text": "Documentation as a webpage\nThis site is built with Quarto and published by GitHub Actions to GitHub Pages on every push to main.\nAuthor profile: github.com/mohamadysn\nRepository: github.com/mohamadysn/FaceGate\nLocal preview:\ncd docs\nquarto preview\nBuild only:\nquarto render docs\nOutput: docs/_site/.",
+    "crumbs": [
+      "Home",
+      "FAIR practices"
+    ]
+  },
+  {
+    "objectID": "getting-started.html",
+    "href": "getting-started.html",
+    "title": "Getting started",
+    "section": "",
+    "text": "Python 3.10+\nA webcam (for live modes)\nTkinter (bundled with most Python installs; on Debian/Ubuntu: sudo apt install python3-tk)",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#requirements",
+    "href": "getting-started.html#requirements",
+    "title": "Getting started",
+    "section": "",
+    "text": "Python 3.10+\nA webcam (for live modes)\nTkinter (bundled with most Python installs; on Debian/Ubuntu: sudo apt install python3-tk)",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#install",
+    "href": "getting-started.html#install",
+    "title": "Getting started",
+    "section": "Install",
+    "text": "Install\n\nLinux / macOS\ngit clone https://github.com/mohamadysn/FaceGate.git\ncd FaceGate\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\n\n\nWindows\ngit clone https://github.com/mohamadysn/FaceGate.git\ncd FaceGate\npython -m venv .venv\n.venv\\Scripts\\activate\npip install -r requirements.txt\nOptional training extras (ArcFace / RetinaFace remakes):\npip install -r requirements-train.txt",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#run-the-desktop-app",
+    "href": "getting-started.html#run-the-desktop-app",
+    "title": "Getting started",
+    "section": "Run the desktop app",
+    "text": "Run the desktop app\ncd eye-tracking\npython app/launch.py\nOS launchers (from eye-tracking/app/):\n\n\n\nOS\nLauncher\n\n\n\n\nLinux\nFaceGate\n\n\nWindows\nFaceGate.bat\n\n\nmacOS\nFaceGate.command\n\n\n\nInstall a Desktop / Start-menu shortcut:\ncd eye-tracking\npython app/install_desktop_shortcut.py",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#camera-backends",
+    "href": "getting-started.html#camera-backends",
+    "title": "Getting started",
+    "section": "Camera backends",
+    "text": "Camera backends\n\n\n\nOS\nOpenCV backend\n\n\n\n\nLinux\nV4L2\n\n\nWindows\nDirectShow / MSMF\n\n\nmacOS\nAVFoundation",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#tests",
+    "href": "getting-started.html#tests",
+    "title": "Getting started",
+    "section": "Tests",
+    "text": "Tests\ncd eye-tracking\npython -m unittest discover -s tests -v",
+    "crumbs": [
+      "Home",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html",
+    "href": "desktop-app.html",
+    "title": "Desktop application",
+    "section": "",
+    "text": "cd eye-tracking\npython app/launch.py\nOr install a shortcut:\npython app/install_desktop_shortcut.py\n\nLinux: if the .desktop icon opens as text → right-click → Allow Launching\nmacOS: first open may need right-click → Open (Gatekeeper)",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#launch",
+    "href": "desktop-app.html#launch",
+    "title": "Desktop application",
+    "section": "",
+    "text": "cd eye-tracking\npython app/launch.py\nOr install a shortcut:\npython app/install_desktop_shortcut.py\n\nLinux: if the .desktop icon opens as text → right-click → Allow Launching\nmacOS: first open may need right-click → Open (Gatekeeper)",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#pages",
+    "href": "desktop-app.html#pages",
+    "title": "Desktop application",
+    "section": "Pages",
+    "text": "Pages\n\n\n\n\n\n\n\nPage\nPurpose\n\n\n\n\nLive recognition\nWebcam detection every frame; identity in the background\n\n\nCamera enrollment\nNEAR then FAR capture with quality gates\n\n\nPhoto enrollment\nImport images, crop / zoom / rotate, merge into existing identity\n\n\nRecognize image\nMatch a still photo against the gallery\n\n\nGallery\nList identities, add photos, delete\n\n\nSettings\nProfile (fast / balanced / accurate), camera index, ONNX provider, threshold",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#profiles",
+    "href": "desktop-app.html#profiles",
+    "title": "Desktop application",
+    "section": "Profiles",
+    "text": "Profiles\n\n\n\nProfile\nGoal\n\n\n\n\nfast\nHigher FPS\n\n\nbalanced\nDefault trade-off\n\n\naccurate\nBest recognition quality\n\n\n\nGreen box = known person · Orange = Unknown.",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#photo-editor",
+    "href": "desktop-app.html#photo-editor",
+    "title": "Desktop application",
+    "section": "Photo editor",
+    "text": "Photo editor\nWhen enrolling from images you can:\n\nZoom (scroll / buttons)\nPan (drag)\nCrop (draw rectangle → Apply crop)\nRotate 90°\nReset / navigate multi-image batches",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#merge-vs-replace",
+    "href": "desktop-app.html#merge-vs-replace",
+    "title": "Desktop application",
+    "section": "Merge vs replace",
+    "text": "Merge vs replace\nFor someone already in the gallery:\n\nAdd to person — blend new embeddings into the existing profile\nReplace completely — overwrite the stored identity",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  },
+  {
+    "objectID": "cli.html",
+    "href": "cli.html",
+    "title": "CLI reference",
+    "section": "",
+    "text": "Run all commands from eye-tracking/ with the virtualenv activated.",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#enroll-webcam",
+    "href": "cli.html#enroll-webcam",
+    "title": "CLI reference",
+    "section": "Enroll (webcam)",
+    "text": "Enroll (webcam)\npython face-recognition/enroll.py --name Alice --provider CPUExecutionProvider\nCaptures NEAR then FAR samples with quality checks.",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#enroll-images",
+    "href": "cli.html#enroll-images",
+    "title": "CLI reference",
+    "section": "Enroll (images)",
+    "text": "Enroll (images)\npython face-recognition/enroll_image.py --name Alice --images photo1.jpg photo2.png\npython face-recognition/enroll_image.py --name Alice --images ./photos_alice/",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#live-recognition",
+    "href": "cli.html#live-recognition",
+    "title": "CLI reference",
+    "section": "Live recognition",
+    "text": "Live recognition\npython face-recognition/recognize_live.py --profile balanced --provider CPUExecutionProvider\npython face-recognition/recognize_live.py --profile fast\npython face-recognition/recognize_live.py --profile accurate\nUseful flags: --camera, --threshold, --max-faces, --min-face-ratio, --no-mirror.",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#recognize-a-still-image",
+    "href": "cli.html#recognize-a-still-image",
+    "title": "CLI reference",
+    "section": "Recognize a still image",
+    "text": "Recognize a still image\npython face-recognition/recognize_image.py --image test.jpg --show\npython face-recognition/recognize_image.py --image test.jpg --save out.jpg",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#unified-pipeline",
+    "href": "cli.html#unified-pipeline",
+    "title": "CLI reference",
+    "section": "Unified pipeline",
+    "text": "Unified pipeline\npython app/run_pipeline.py --recognize --provider CPUExecutionProvider\npython app/run_pipeline.py --recognize --enable-log",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#calibration-gaze-optional",
+    "href": "cli.html#calibration-gaze-optional",
+    "title": "CLI reference",
+    "section": "Calibration & gaze (optional)",
+    "text": "Calibration & gaze (optional)\npython camera-calibration/take_photo.py\npython camera-calibration/calibration.py\npython gaze-estimation/run_calibration.py\npython pupil-segmentation/run_demo.py",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "cli.html#gallery-location",
+    "href": "cli.html#gallery-location",
+    "title": "CLI reference",
+    "section": "Gallery location",
+    "text": "Gallery location\nArtifacts (gitignored when personal):\neye-tracking/face-recognition/gallery/\n  gallery.json\n  embeddings.npy",
+    "crumbs": [
+      "Home",
+      "CLI reference"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "FaceGate",
+    "section": "",
+    "text": "This project was developed by Mohamad Yassine.\nRepository: https://github.com/mohamadysn/FaceGate\nIt provides a cross-platform desktop application and CLIs for:\n\nEnrolling people (camera NEAR/FAR or photo albums)\nRecognizing them live or on still images\nOptionally tracking pupils and gaze, plus session metrics\n\nStack: Python · OpenCV · InsightFace · Tkinter · Quarto docs.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "FaceGate",
+    "section": "",
+    "text": "This project was developed by Mohamad Yassine.\nRepository: https://github.com/mohamadysn/FaceGate\nIt provides a cross-platform desktop application and CLIs for:\n\nEnrolling people (camera NEAR/FAR or photo albums)\nRecognizing them live or on still images\nOptionally tracking pupils and gaze, plus session metrics\n\nStack: Python · OpenCV · InsightFace · Tkinter · Quarto docs.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#quick-links",
+    "href": "index.html#quick-links",
+    "title": "FaceGate",
+    "section": "Quick links",
+    "text": "Quick links\n\n\n\nGo to\nDescription\n\n\n\n\nGetting started\nInstall on Linux / Windows / macOS\n\n\nDesktop app\nGUI pages and shortcuts\n\n\nModules\nRepository layout\n\n\nCLI reference\nEnroll / recognize commands\n\n\nFAIR practices\nFindable, Accessible, Interoperable, Reusable\n\n\nAbout\nAuthor & project",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#architecture-high-level",
+    "href": "index.html#architecture-high-level",
+    "title": "FaceGate",
+    "section": "Architecture (high level)",
+    "text": "Architecture (high level)\n\n\n\n\n\nflowchart LR\n  Cam[Webcam / photos] --&gt; App[Desktop app / CLI]\n  App --&gt; Det[Face detect]\n  Det --&gt; Emb[Embeddings]\n  Emb --&gt; Gal[(Gallery JSON + NPY)]\n  Emb --&gt; Match[Cosine match]\n  Match --&gt; UI[Identity overlay]\n  Det --&gt; Pupil[Pupil / gaze optional]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#license-privacy",
+    "href": "index.html#license-privacy",
+    "title": "FaceGate",
+    "section": "License & privacy",
+    "text": "License & privacy\nThe on-disk gallery stores embeddings only (no face photos). Do not commit personal gallery.json / embeddings.npy files.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "desktop-app.html#launch-facegate",
+    "href": "desktop-app.html#launch-facegate",
+    "title": "Desktop application",
+    "section": "",
+    "text": "cd eye-tracking\npython app/launch.py\nOr install a shortcut:\npython app/install_desktop_shortcut.py\n\nLinux: if the .desktop icon opens as text → right-click → Allow Launching\nmacOS: first open may need right-click → Open (Gatekeeper)",
+    "crumbs": [
+      "Home",
+      "Desktop app"
+    ]
+  }
+]

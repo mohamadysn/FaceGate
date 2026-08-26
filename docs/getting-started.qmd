@@ -1,0 +1,75 @@
+---
+title: "Getting started"
+author: "Mohamad Yassine"
+---
+
+## Requirements
+
+- Python **3.10+**
+- A webcam (for live modes)
+- Tkinter (bundled with most Python installs; on Debian/Ubuntu: `sudo apt install python3-tk`)
+
+## Install
+
+### Linux / macOS
+
+```bash
+git clone https://github.com/mohamadysn/FaceGate.git
+cd FaceGate
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Windows
+
+```bat
+git clone https://github.com/mohamadysn/FaceGate.git
+cd FaceGate
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Optional training extras (ArcFace / RetinaFace remakes):
+
+```bash
+pip install -r requirements-train.txt
+```
+
+## Run the desktop app
+
+```bash
+cd eye-tracking
+python app/launch.py
+```
+
+OS launchers (from `eye-tracking/app/`):
+
+| OS | Launcher |
+|----|----------|
+| Linux | `FaceGate` |
+| Windows | `FaceGate.bat` |
+| macOS | `FaceGate.command` |
+
+Install a Desktop / Start-menu shortcut:
+
+```bash
+cd eye-tracking
+python app/install_desktop_shortcut.py
+```
+
+## Camera backends
+
+| OS | OpenCV backend |
+|----|----------------|
+| Linux | V4L2 |
+| Windows | DirectShow / MSMF |
+| macOS | AVFoundation |
+
+## Tests
+
+```bash
+cd eye-tracking
+python -m unittest discover -s tests -v
+```
