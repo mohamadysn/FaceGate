@@ -33,18 +33,22 @@ from common.quality import assess_face_quality, is_frontal_enough
 from .image_editor import ImageEditorDialog, load_bgr_images
 from .platform_util import ui_font
 from .services import AppServices, embed_one
+from .theme import (
+    ACCENT,
+    BG,
+    CARD,
+    CARD_BORDER,
+    MUTED,
+    NAV_ACTIVE,
+    TEXT,
+    apply_ttk_theme,
+    card,
+    info_strip,
+    page_header,
+    toolbar,
+)
+from .theme import NavRail
 from .video_widget import VideoPanel
-
-# Visual theme
-BG = "#0F172A"
-SIDE = "#111827"
-PANEL = "#1E293B"
-ACCENT = "#38BDF8"
-TEXT = "#F8FAFC"
-MUTED = "#94A3B8"
-OK = "#22C55E"
-WARN = "#F59E0B"
-DANGER = "#EF4444"
 
 
 class FaceRecogApp:
@@ -54,13 +58,12 @@ class FaceRecogApp:
         self.services = AppServices()
         self.root = tk.Tk()
         self.root.title("FaceGate")
-        self.root.geometry("1180x720")
-        self.root.minsize(960, 600)
+        self.root.geometry("1240x760")
+        self.root.minsize(1024, 640)
         self.root.configure(bg=BG)
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         self._page = tk.StringVar(value="live")
-        self._status = tk.StringVar(value="Ready")
         self._busy = False
         self._stop_flags = {"live": False, "enroll": False}
         self._live_thread: Optional[threading.Thread] = None
@@ -70,6 +73,7 @@ class FaceRecogApp:
 
         self._build_style()
         self._build_layout()
+        self._nav.set_active("live")
         self._show_page("live")
         self._refresh_gallery_list()
 
@@ -78,114 +82,18 @@ class FaceRecogApp:
 
     # ------------------------------------------------------------------ UI
     def _build_style(self) -> None:
-        style = ttk.Style(self.root)
-        try:
-            style.theme_use("clam")
-        except tk.TclError:
-            pass
-        style.configure("Side.TFrame", background=SIDE)
-        style.configure("Main.TFrame", background=BG)
-        style.configure("Card.TFrame", background=PANEL)
-        style.configure(
-            "Nav.TButton",
-            background=SIDE,
-            foreground=TEXT,
-            borderwidth=0,
-            focusthickness=0,
-            padding=(14, 10),
-            font=ui_font(11),
-        )
-        style.map("Nav.TButton", background=[("active", PANEL)])
-        style.configure(
-            "Accent.TButton",
-            background=ACCENT,
-            foreground="#0F172A",
-            padding=(12, 8),
-            font=ui_font(10, bold=True),
-        )
-        style.map("Accent.TButton", background=[("active", "#7DD3FC")])
-        style.configure(
-            "Danger.TButton",
-            background=DANGER,
-            foreground=TEXT,
-            padding=(10, 6),
-        )
-        style.configure("TLabel", background=BG, foreground=TEXT, font=ui_font(10))
-        style.configure("Title.TLabel", background=BG, foreground=TEXT, font=ui_font(18, bold=True))
-        style.configure("Muted.TLabel", background=BG, foreground=MUTED, font=ui_font(9))
-        style.configure("Card.TLabel", background=PANEL, foreground=TEXT, font=ui_font(10))
-        style.configure("Status.TLabel", background=SIDE, foreground=MUTED, font=ui_font(9))
-        style.configure("TEntry", fieldbackground="#0B1220", foreground=TEXT)
-        style.configure("TCombobox", fieldbackground="#0B1220", foreground=TEXT)
-        style.configure(
-            "Treeview",
-            background=PANEL,
-            foreground=TEXT,
-            fieldbackground=PANEL,
-            borderwidth=0,
-            rowheight=28,
-        )
-        style.configure("Treeview.Heading", background=SIDE, foreground=TEXT, font=ui_font(10, bold=True))
+        apply_ttk_theme(self.root)
 
     def _build_layout(self) -> None:
         shell = ttk.Frame(self.root, style="Main.TFrame")
         shell.pack(fill=tk.BOTH, expand=True)
 
-        side = ttk.Frame(shell, style="Side.TFrame", width=220)
-        side.pack(side=tk.LEFT, fill=tk.Y)
-        side.pack_propagate(False)
-
-        brand = tk.Label(
-            side,
-            text="FaceGate",
-            bg=SIDE,
-            fg=ACCENT,
-            font=ui_font(14, bold=True),
-            pady=18,
-        )
-        brand.pack(fill=tk.X, padx=12)
-
-        nav_items = [
-            ("live", "Live recognition"),
-            ("enroll", "Camera enrollment"),
-            ("enroll_img", "Photo enrollment"),
-            ("recognize_img", "Recognize image"),
-            ("gallery", "Gallery"),
-            ("settings", "Settings"),
-            ("legal", "Privacy / GDPR"),
-        ]
-        for key, label in nav_items:
-            btn = tk.Button(
-                side,
-                text=label,
-                anchor="w",
-                bg=SIDE,
-                fg=TEXT,
-                activebackground=PANEL,
-                activeforeground=ACCENT,
-                relief="flat",
-                bd=0,
-                padx=16,
-                pady=10,
-                font=ui_font(11),
-                cursor="hand2",
-                command=lambda k=key: self._show_page(k),
-            )
-            btn.pack(fill=tk.X, padx=8, pady=2)
-
-        tk.Label(
-            side,
-            textvariable=self._status,
-            bg=SIDE,
-            fg=MUTED,
-            font=ui_font(9),
-            wraplength=190,
-            justify="left",
-            anchor="sw",
-        ).pack(side=tk.BOTTOM, fill=tk.X, padx=12, pady=12)
+        self._nav = NavRail(shell, self._show_page)
+        self._nav.frame.pack(side=tk.LEFT, fill=tk.Y)
+        self._status = self._nav.status_var()
 
         self.content = ttk.Frame(shell, style="Main.TFrame")
-        self.content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=16, pady=16)
+        self.content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 20), pady=20)
 
         self.pages = {}
         self.pages["live"] = self._build_live_page(self.content)
@@ -202,6 +110,7 @@ class FaceRecogApp:
         if name != "enroll":
             self._stop_enroll()
         self._page.set(name)
+        self._nav.set_active(name)
         for key, frame in self.pages.items():
             if key == name:
                 frame.pack(fill=tk.BOTH, expand=True)
@@ -218,24 +127,24 @@ class FaceRecogApp:
     # -------------------------------------------------------------- Live
     def _build_live_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Live recognition", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(
+        page_header(
             page,
-            text="Detect every frame · identity in the background",
-            style="Muted.TLabel",
-        ).pack(anchor="w", pady=(0, 10))
+            "Live recognition",
+            "Real-time detection every frame · identity matching in the background",
+            badge=self.services.profile_name,
+        )
 
-        controls = ttk.Frame(page, style="Main.TFrame")
-        controls.pack(fill=tk.X, pady=(0, 8))
-        ttk.Button(controls, text="▶ Start", style="Accent.TButton", command=self._start_live).pack(
+        controls = toolbar(page)
+        ttk.Button(controls, text="▶  Start", style="Accent.TButton", command=self._start_live).pack(
             side=tk.LEFT, padx=(0, 8)
         )
-        ttk.Button(controls, text="■ Stop", command=self._stop_live).pack(side=tk.LEFT)
+        ttk.Button(controls, text="■  Stop", style="Ghost.TButton", command=self._stop_live).pack(side=tk.LEFT)
 
-        self.live_info = tk.StringVar(value="Press Start")
-        ttk.Label(controls, textvariable=self.live_info, style="Muted.TLabel").pack(side=tk.LEFT, padx=16)
+        self.live_info = tk.StringVar(value="Press Start to open the camera")
+        info_strip(page, self.live_info)
 
-        self.live_video = VideoPanel(page)
+        video_card = card(page)
+        self.live_video = VideoPanel(video_card)
         self.live_video.pack(fill=tk.BOTH, expand=True)
         return page
 
@@ -329,27 +238,26 @@ class FaceRecogApp:
     # ------------------------------------------------------------- Enroll cam
     def _build_enroll_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Camera enrollment", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(
+        page_header(
             page,
-            text="NEAR then FAR phases — face the camera",
-            style="Muted.TLabel",
-        ).pack(anchor="w", pady=(0, 10))
-
-        row = ttk.Frame(page, style="Main.TFrame")
-        row.pack(fill=tk.X, pady=(0, 8))
-        ttk.Label(row, text="Name:").pack(side=tk.LEFT)
-        self.enroll_name = tk.StringVar()
-        ttk.Entry(row, textvariable=self.enroll_name, width=28).pack(side=tk.LEFT, padx=8)
-        ttk.Button(row, text="▶ Enroll", style="Accent.TButton", command=self._start_enroll).pack(
-            side=tk.LEFT, padx=4
+            "Camera enrollment",
+            "NEAR then FAR capture with quality checks — face the camera in good light",
         )
-        ttk.Button(row, text="■ Cancel", command=self._stop_enroll).pack(side=tk.LEFT)
 
-        self.enroll_info = tk.StringVar(value="Enter a name, then start")
-        ttk.Label(page, textvariable=self.enroll_info, style="Muted.TLabel").pack(anchor="w", pady=(0, 6))
+        form = toolbar(page)
+        ttk.Label(form, text="Name").pack(side=tk.LEFT)
+        self.enroll_name = tk.StringVar()
+        ttk.Entry(form, textvariable=self.enroll_name, width=26).pack(side=tk.LEFT, padx=(8, 12))
+        ttk.Button(form, text="▶  Start enrollment", style="Accent.TButton", command=self._start_enroll).pack(
+            side=tk.LEFT, padx=(0, 8)
+        )
+        ttk.Button(form, text="Cancel", style="Ghost.TButton", command=self._stop_enroll).pack(side=tk.LEFT)
 
-        self.enroll_video = VideoPanel(page)
+        self.enroll_info = tk.StringVar(value="Enter a name, then start enrollment")
+        info_strip(page, self.enroll_info)
+
+        video_card = card(page)
+        self.enroll_video = VideoPanel(video_card)
         self.enroll_video.pack(fill=tk.BOTH, expand=True)
         return page
 
@@ -511,43 +419,42 @@ class FaceRecogApp:
     # -------------------------------------------------------- Enroll images
     def _build_enroll_img_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Photo enrollment", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(
+        page_header(
             page,
-            text="New person, or add photos to someone already in the gallery",
-            style="Muted.TLabel",
-        ).pack(anchor="w", pady=(0, 10))
+            "Photo enrollment",
+            "Enroll a new person or add photos to someone already in the gallery",
+        )
 
-        row = ttk.Frame(page, style="Main.TFrame")
-        row.pack(fill=tk.X, pady=4)
-        ttk.Label(row, text="Name:").pack(side=tk.LEFT)
+        row = toolbar(page)
+        ttk.Label(row, text="Name").pack(side=tk.LEFT)
         self.img_enroll_name = tk.StringVar()
         self.img_enroll_name_combo = ttk.Combobox(
-            row, textvariable=self.img_enroll_name, width=26, values=[]
+            row, textvariable=self.img_enroll_name, width=24, values=[]
         )
-        self.img_enroll_name_combo.pack(side=tk.LEFT, padx=8)
-        ttk.Button(row, text="↻ names", command=self._refresh_enroll_name_choices).pack(side=tk.LEFT)
+        self.img_enroll_name_combo.pack(side=tk.LEFT, padx=(8, 8))
+        ttk.Button(row, text="↻ Refresh names", style="Ghost.TButton", command=self._refresh_enroll_name_choices).pack(
+            side=tk.LEFT
+        )
 
         mode_row = ttk.Frame(page, style="Main.TFrame")
-        mode_row.pack(fill=tk.X, pady=4)
+        mode_row.pack(fill=tk.X, pady=(0, 8))
         self.img_enroll_mode = tk.StringVar(value="merge")
         ttk.Radiobutton(
             mode_row,
-            text="Add to person (if already enrolled)",
+            text="Add to existing person (merge embeddings)",
             variable=self.img_enroll_mode,
             value="merge",
-        ).pack(side=tk.LEFT, padx=(0, 16))
+        ).pack(side=tk.LEFT, padx=(0, 20))
         ttk.Radiobutton(
             mode_row,
-            text="Replace completely",
+            text="Replace profile completely",
             variable=self.img_enroll_mode,
             value="replace",
         ).pack(side=tk.LEFT)
 
-        row2 = ttk.Frame(page, style="Main.TFrame")
-        row2.pack(fill=tk.X, pady=4)
+        row2 = toolbar(page)
         ttk.Button(row2, text="Choose images…", command=self._pick_enroll_images).pack(side=tk.LEFT)
-        ttk.Button(row2, text="Edit (crop / zoom)…", command=self._edit_enroll_images).pack(
+        ttk.Button(row2, text="Edit (crop / zoom)…", style="Ghost.TButton", command=self._edit_enroll_images).pack(
             side=tk.LEFT, padx=8
         )
         ttk.Button(row2, text="Enroll", style="Accent.TButton", command=self._run_enroll_images).pack(
@@ -557,9 +464,10 @@ class FaceRecogApp:
         self.img_enroll_files: List[str] = []
         self.img_enroll_edited: List = []
         self.img_enroll_info = tk.StringVar(value="No image selected")
-        ttk.Label(page, textvariable=self.img_enroll_info, style="Muted.TLabel").pack(anchor="w", pady=8)
+        info_strip(page, self.img_enroll_info)
 
-        self.img_enroll_preview = VideoPanel(page)
+        video_card = card(page)
+        self.img_enroll_preview = VideoPanel(video_card)
         self.img_enroll_preview.pack(fill=tk.BOTH, expand=True)
         self._refresh_enroll_name_choices()
         return page
@@ -691,23 +599,20 @@ class FaceRecogApp:
     # ----------------------------------------------------- Recognize image
     def _build_recognize_img_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Recognize an image", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(page, text="Match a photo against the gallery", style="Muted.TLabel").pack(
-            anchor="w", pady=(0, 10)
-        )
+        page_header(page, "Recognize image", "Match a still photo against the enrolled gallery")
 
-        row = ttk.Frame(page, style="Main.TFrame")
-        row.pack(fill=tk.X, pady=4)
+        row = toolbar(page)
         ttk.Button(row, text="Open image…", command=self._pick_recognize_image).pack(side=tk.LEFT)
         ttk.Button(row, text="Analyze", style="Accent.TButton", command=self._run_recognize_image).pack(
             side=tk.LEFT, padx=8
         )
 
         self.recognize_path: Optional[str] = None
-        self.recognize_info = tk.StringVar(value="No image")
-        ttk.Label(page, textvariable=self.recognize_info, style="Muted.TLabel").pack(anchor="w", pady=8)
+        self.recognize_info = tk.StringVar(value="No image selected")
+        info_strip(page, self.recognize_info)
 
-        self.recognize_video = VideoPanel(page)
+        video_card = card(page)
+        self.recognize_video = VideoPanel(video_card)
         self.recognize_video.pack(fill=tk.BOTH, expand=True)
         return page
 
@@ -745,37 +650,43 @@ class FaceRecogApp:
     # -------------------------------------------------------------- Gallery
     def _build_gallery_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Identity gallery", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(
+        page_header(
             page,
-            text="Stored embeddings (no photos) — gallery.json + embeddings.npy",
-            style="Muted.TLabel",
-        ).pack(anchor="w", pady=(0, 10))
+            "Identity gallery",
+            "Local embeddings only (gallery.json + embeddings.npy) — no photos stored",
+        )
 
-        row = ttk.Frame(page, style="Main.TFrame")
-        row.pack(fill=tk.X, pady=4)
-        ttk.Button(row, text="Refresh", command=self._refresh_gallery_list).pack(side=tk.LEFT)
+        stats = ttk.Frame(page, style="Main.TFrame")
+        stats.pack(fill=tk.X, pady=(0, 12))
+        self._gallery_count_label = tk.Label(stats, bg=BG)
+        self._gallery_count_label.pack(side=tk.LEFT)
+        self._gallery_samples_label = tk.Label(stats, bg=BG)
+        self._gallery_samples_label.pack(side=tk.LEFT)
+
+        row = toolbar(page)
+        ttk.Button(row, text="Refresh", style="Ghost.TButton", command=self._refresh_gallery_list).pack(side=tk.LEFT)
         ttk.Button(
             row,
             text="Add photos…",
             style="Accent.TButton",
             command=self._gallery_add_photos,
         ).pack(side=tk.LEFT, padx=8)
-        ttk.Button(row, text="Export…", command=self._export_gallery).pack(side=tk.LEFT, padx=8)
-        ttk.Button(row, text="Import…", command=self._import_gallery).pack(side=tk.LEFT, padx=8)
+        ttk.Button(row, text="Export…", style="Ghost.TButton", command=self._export_gallery).pack(side=tk.LEFT, padx=4)
+        ttk.Button(row, text="Import…", style="Ghost.TButton", command=self._import_gallery).pack(side=tk.LEFT, padx=4)
         ttk.Button(row, text="Delete selected", style="Danger.TButton", command=self._delete_selected).pack(
             side=tk.LEFT, padx=8
         )
 
         self.gallery_path_label = tk.StringVar()
-        ttk.Label(page, textvariable=self.gallery_path_label, style="Muted.TLabel").pack(anchor="w", pady=6)
+        info_strip(page, self.gallery_path_label)
 
+        table_card = card(page, pad=8)
         cols = ("name", "samples")
-        self.gallery_tree = ttk.Treeview(page, columns=cols, show="headings", height=16)
+        self.gallery_tree = ttk.Treeview(table_card, columns=cols, show="headings", height=18)
         self.gallery_tree.heading("name", text="Name")
         self.gallery_tree.heading("samples", text="Samples")
-        self.gallery_tree.column("name", width=280)
-        self.gallery_tree.column("samples", width=120)
+        self.gallery_tree.column("name", width=320, minwidth=180)
+        self.gallery_tree.column("samples", width=100, minwidth=80, anchor="center")
         self.gallery_tree.pack(fill=tk.BOTH, expand=True)
         return page
 
@@ -785,9 +696,24 @@ class FaceRecogApp:
         for item in self.gallery_tree.get_children():
             self.gallery_tree.delete(item)
         gallery = self.services.gallery()
-        self.gallery_path_label.set(f"Path: {gallery.root}  ·  {len(gallery)} identities")
+        total_samples = sum(e.n_samples for e in gallery.entries)
+        self.gallery_path_label.set(f"Path: {gallery.root}")
+        if hasattr(self, "_gallery_count_label"):
+            self._update_stat_label(self._gallery_count_label, str(len(gallery)), "Identities")
+            self._update_stat_label(self._gallery_samples_label, str(total_samples), "Total samples")
         for entry in gallery.entries:
             self.gallery_tree.insert("", tk.END, values=(entry.name, entry.n_samples))
+
+    def _update_stat_label(self, widget: tk.Label, value: str, label: str) -> None:
+        """Refresh a mini stat card label pair."""
+        for child in widget.winfo_children():
+            child.destroy()
+        box = tk.Frame(widget, bg=CARD, highlightbackground=CARD_BORDER, highlightthickness=1)
+        box.pack(side=tk.LEFT, padx=(0, 12))
+        inner = tk.Frame(box, bg=CARD)
+        inner.pack(padx=18, pady=12)
+        tk.Label(inner, text=value, bg=CARD, fg=ACCENT, font=ui_font(20, bold=True)).pack(anchor="w")
+        tk.Label(inner, text=label, bg=CARD, fg=MUTED, font=ui_font(9)).pack(anchor="w")
 
     def _gallery_add_photos(self) -> None:
         sel = self.gallery_tree.selection()
@@ -857,13 +783,11 @@ class FaceRecogApp:
     # ------------------------------------------------------------- Settings
     def _build_settings_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Settings", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(page, text="Profile, camera, ONNX provider", style="Muted.TLabel").pack(
-            anchor="w", pady=(0, 12)
-        )
+        page_header(page, "Settings", "Recognition profile, camera device, and ONNX runtime options")
 
-        grid = ttk.Frame(page, style="Main.TFrame")
-        grid.pack(anchor="w")
+        form_card = card(page, pad=20)
+        grid = ttk.Frame(form_card, style="Card.TFrame")
+        grid.pack(anchor="nw")
 
         self.var_profile = tk.StringVar(value=self.services.profile_name)
         self.var_provider = tk.StringVar(value=self.services.provider)
@@ -872,16 +796,60 @@ class FaceRecogApp:
         self.var_max_faces = tk.IntVar(value=self.services.max_faces)
         self.var_threshold = tk.StringVar(value="")
 
-        def row(r, label, widget):
-            ttk.Label(grid, text=label).grid(row=r, column=0, sticky="w", pady=6, padx=(0, 12))
-            widget.grid(row=r, column=1, sticky="w", pady=6)
+        def row(r, label, widget, hint: str = ""):
+            ttk.Label(grid, text=label, style="Card.TLabel").grid(
+                row=r, column=0, sticky="nw", pady=10, padx=(0, 16)
+            )
+            widget.grid(row=r, column=1, sticky="w", pady=10)
+            if hint:
+                ttk.Label(grid, text=hint, style="CardMuted.TLabel").grid(
+                    row=r, column=2, sticky="w", padx=(12, 0), pady=10
+                )
 
-        row(0, "Profile", ttk.Combobox(grid, textvariable=self.var_profile, values=["fast", "balanced", "accurate"], width=18, state="readonly"))
-        row(1, "Provider", ttk.Combobox(grid, textvariable=self.var_provider, values=["CPUExecutionProvider", "CUDAExecutionProvider"], width=24, state="readonly"))
-        row(2, "Camera index", ttk.Spinbox(grid, from_=0, to=8, textvariable=self.var_camera, width=8))
-        row(3, "Mirror", ttk.Checkbutton(grid, variable=self.var_mirror))
-        row(4, "Max faces", ttk.Spinbox(grid, from_=1, to=10, textvariable=self.var_max_faces, width=8))
-        row(5, "Threshold (empty = profile)", ttk.Entry(grid, textvariable=self.var_threshold, width=10))
+        row(
+            0,
+            "Profile",
+            ttk.Combobox(
+                grid,
+                textvariable=self.var_profile,
+                values=["fast", "balanced", "accurate"],
+                width=18,
+                state="readonly",
+                style="Card.TCombobox",
+            ),
+            "Speed vs accuracy",
+        )
+        row(
+            1,
+            "Provider",
+            ttk.Combobox(
+                grid,
+                textvariable=self.var_provider,
+                values=["CPUExecutionProvider", "CUDAExecutionProvider"],
+                width=24,
+                state="readonly",
+                style="Card.TCombobox",
+            ),
+            "ONNX runtime",
+        )
+        row(
+            2,
+            "Camera index",
+            ttk.Spinbox(grid, from_=0, to=8, textvariable=self.var_camera, width=8, style="Card.TSpinbox"),
+            "0 = default",
+        )
+        row(3, "Mirror preview", ttk.Checkbutton(grid, variable=self.var_mirror, style="Card.TCheckbutton"))
+        row(
+            4,
+            "Max faces",
+            ttk.Spinbox(grid, from_=1, to=10, textvariable=self.var_max_faces, width=8, style="Card.TSpinbox"),
+        )
+        row(
+            5,
+            "Match threshold",
+            ttk.Entry(grid, textvariable=self.var_threshold, width=10, style="Card.TEntry"),
+            "Empty = profile default",
+        )
 
         ttk.Button(page, text="Save settings", style="Accent.TButton", command=self._save_settings).pack(
             anchor="w", pady=16
@@ -890,12 +858,11 @@ class FaceRecogApp:
 
     def _build_legal_page(self, parent) -> ttk.Frame:
         page = ttk.Frame(parent, style="Main.TFrame")
-        ttk.Label(page, text="Privacy / GDPR", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(
+        page_header(
             page,
-            text="Short legal notice for biometric data processing",
-            style="Muted.TLabel",
-        ).pack(anchor="w", pady=(0, 12))
+            "Privacy / GDPR",
+            "Short legal notice for biometric data stored on this device",
+        )
 
         notice = (
             "FaceGate stores face embeddings (numeric vectors), not photo files, "
@@ -915,16 +882,20 @@ class FaceRecogApp:
             "everything stays on your machine unless you export or copy it.\n\n"
             "Full notice: https://mohamadysn.github.io/FaceGate/privacy.html"
         )
+        legal_card = card(page, pad=16)
         box = tk.Text(
-            page,
+            legal_card,
             wrap="word",
             height=22,
             width=72,
-            bg=PANEL,
+            bg=CARD,
             fg=TEXT,
+            insertbackground=ACCENT,
+            selectbackground=NAV_ACTIVE,
             relief="flat",
-            padx=12,
-            pady=12,
+            highlightthickness=0,
+            padx=4,
+            pady=4,
             font=ui_font(10),
         )
         box.pack(fill=tk.BOTH, expand=True)

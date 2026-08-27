@@ -16,8 +16,10 @@ from PIL import Image, ImageTk
 
 try:
     from .platform_util import ui_font
+    from .theme import ACCENT, ACCENT_TEXT, BG, CARD, CARD_BORDER, MUTED, PANEL, PANEL_HOVER, SIDE, TEXT
 except ImportError:
     from app.desktop.platform_util import ui_font  # type: ignore
+    from app.desktop.theme import ACCENT, ACCENT_TEXT, BG, CARD, CARD_BORDER, MUTED, PANEL, PANEL_HOVER, SIDE, TEXT
 
 
 @dataclass
@@ -43,9 +45,9 @@ class ImageEditorDialog(tk.Toplevel):
     ) -> None:
         super().__init__(master)
         self.title(title)
-        self.configure(bg="#0F172A")
-        self.geometry("980x700")
-        self.minsize(720, 520)
+        self.configure(bg=BG)
+        self.geometry("1000x720")
+        self.minsize(760, 540)
         self.transient(master)
         self.grab_set()
         self.result: Optional[List[EditedImage]] = None
@@ -79,77 +81,84 @@ class ImageEditorDialog(tk.Toplevel):
 
     # ---------------------------------------------------------------- UI
     def _build_ui(self) -> None:
-        top = tk.Frame(self, bg="#0F172A")
-        top.pack(fill=tk.X, padx=12, pady=8)
+        top = tk.Frame(self, bg=BG)
+        top.pack(fill=tk.X, padx=16, pady=10)
 
         self._title_var = tk.StringVar()
         tk.Label(
             top,
             textvariable=self._title_var,
-            bg="#0F172A",
-            fg="#F8FAFC",
-            font=ui_font(12, bold=True),
+            bg=BG,
+            fg=TEXT,
+            font=ui_font(13, bold=True),
         ).pack(side=tk.LEFT)
 
-        nav = tk.Frame(top, bg="#0F172A")
+        nav = tk.Frame(top, bg=BG)
         nav.pack(side=tk.RIGHT)
-        tk.Button(nav, text="◀ Prev", command=self._prev, bg="#1E293B", fg="#F8FAFC", relief="flat").pack(
-            side=tk.LEFT, padx=2
-        )
-        tk.Button(nav, text="Next ▶", command=self._next, bg="#1E293B", fg="#F8FAFC", relief="flat").pack(
-            side=tk.LEFT, padx=2
-        )
+        for label, cmd in (("◀ Prev", self._prev), ("Next ▶", self._next)):
+            tk.Button(
+                nav,
+                text=label,
+                command=cmd,
+                bg=PANEL,
+                fg=TEXT,
+                activebackground=PANEL_HOVER,
+                relief="flat",
+                padx=12,
+                pady=6,
+                cursor="hand2",
+            ).pack(side=tk.LEFT, padx=3)
 
-        tools = tk.Frame(self, bg="#111827")
-        tools.pack(fill=tk.X, padx=12, pady=(0, 8))
+        tools = tk.Frame(self, bg=SIDE)
+        tools.pack(fill=tk.X, padx=16, pady=(0, 8))
 
         def btn(text, cmd):
             return tk.Button(
                 tools,
                 text=text,
                 command=cmd,
-                bg="#1E293B",
-                fg="#F8FAFC",
-                activebackground="#334155",
+                bg=PANEL,
+                fg=TEXT,
+                activebackground=PANEL_HOVER,
                 relief="flat",
-                padx=10,
-                pady=4,
+                padx=12,
+                pady=6,
                 cursor="hand2",
             )
 
-        btn("Zoom −", lambda: self._zoom_by(0.85)).pack(side=tk.LEFT, padx=2, pady=6)
-        btn("Zoom +", lambda: self._zoom_by(1.15)).pack(side=tk.LEFT, padx=2, pady=6)
-        btn("Fit", self._fit_to_view).pack(side=tk.LEFT, padx=2, pady=6)
-        btn("↺ 90°", lambda: self._rotate(90)).pack(side=tk.LEFT, padx=2, pady=6)
-        btn("↻ 90°", lambda: self._rotate(-90)).pack(side=tk.LEFT, padx=2, pady=6)
-        btn("Reset image", self._reset_current).pack(side=tk.LEFT, padx=2, pady=6)
+        btn("Zoom −", lambda: self._zoom_by(0.85)).pack(side=tk.LEFT, padx=2, pady=8)
+        btn("Zoom +", lambda: self._zoom_by(1.15)).pack(side=tk.LEFT, padx=2, pady=8)
+        btn("Fit", self._fit_to_view).pack(side=tk.LEFT, padx=2, pady=8)
+        btn("↺ 90°", lambda: self._rotate(90)).pack(side=tk.LEFT, padx=2, pady=8)
+        btn("↻ 90°", lambda: self._rotate(-90)).pack(side=tk.LEFT, padx=2, pady=8)
+        btn("Reset", self._reset_current).pack(side=tk.LEFT, padx=2, pady=8)
 
         tk.Checkbutton(
             tools,
-            text="Crop mode (draw a rectangle)",
+            text="Crop mode",
             variable=self._crop_enabled,
             command=self._on_crop_toggle,
-            bg="#111827",
-            fg="#E2E8F0",
-            selectcolor="#0F172A",
-            activebackground="#111827",
-            activeforeground="#38BDF8",
+            bg=SIDE,
+            fg=TEXT,
+            selectcolor=BG,
+            activebackground=SIDE,
+            activeforeground=ACCENT,
         ).pack(side=tk.LEFT, padx=12)
 
-        btn("Apply crop", self._apply_crop).pack(side=tk.LEFT, padx=2, pady=6)
+        btn("Apply crop", self._apply_crop).pack(side=tk.LEFT, padx=2, pady=8)
 
         hint = tk.Label(
             self,
-            text="Scroll = zoom · Drag = pan · In crop mode: draw a box then Apply crop",
-            bg="#0F172A",
-            fg="#94A3B8",
+            text="Scroll = zoom · Drag = pan · Crop: draw a box, then Apply crop",
+            bg=BG,
+            fg=MUTED,
             font=ui_font(9),
         )
-        hint.pack(fill=tk.X, padx=12)
+        hint.pack(fill=tk.X, padx=16)
 
-        canvas_frame = tk.Frame(self, bg="#020617", highlightthickness=1, highlightbackground="#334155")
-        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=12, pady=8)
-        self.canvas = tk.Canvas(canvas_frame, bg="#020617", highlightthickness=0, cursor="fleur")
+        canvas_frame = tk.Frame(self, bg=BG, highlightthickness=1, highlightbackground=CARD_BORDER)
+        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=8)
+        self.canvas = tk.Canvas(canvas_frame, bg=BG, highlightthickness=0, cursor="fleur")
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.canvas.bind("<Configure>", lambda _e: self._redraw())
         self.canvas.bind("<ButtonPress-1>", self._on_press)
@@ -159,28 +168,32 @@ class ImageEditorDialog(tk.Toplevel):
         self.canvas.bind("<Button-4>", lambda e: self._on_wheel_linux(e, 1))
         self.canvas.bind("<Button-5>", lambda e: self._on_wheel_linux(e, -1))
 
-        bottom = tk.Frame(self, bg="#0F172A")
-        bottom.pack(fill=tk.X, padx=12, pady=10)
+        bottom = tk.Frame(self, bg=BG)
+        bottom.pack(fill=tk.X, padx=16, pady=12)
         tk.Button(
             bottom,
             text="Cancel",
             command=self._cancel,
-            bg="#334155",
-            fg="#F8FAFC",
+            bg=PANEL,
+            fg=TEXT,
+            activebackground=PANEL_HOVER,
             relief="flat",
-            padx=14,
-            pady=6,
+            padx=16,
+            pady=8,
+            cursor="hand2",
         ).pack(side=tk.RIGHT, padx=4)
         tk.Button(
             bottom,
             text="Accept all images",
             command=self._accept_all,
-            bg="#38BDF8",
-            fg="#0F172A",
+            bg=ACCENT,
+            fg=ACCENT_TEXT,
+            activebackground="#7DD3FC",
             relief="flat",
-            padx=14,
-            pady=6,
+            padx=16,
+            pady=8,
             font=ui_font(10, bold=True),
+            cursor="hand2",
         ).pack(side=tk.RIGHT, padx=4)
 
     # ----------------------------------------------------------- navigation
