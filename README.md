@@ -3,7 +3,7 @@
 Real-time **face recognition** (desktop app + CLI) with optional eye / gaze
 tracking. Built with Python, OpenCV, and InsightFace.
 
-**Developed by [Mohamad Yassine](https://github.com/mohamadysn)** · Repository: [github.com/mohamadysn/FaceGate](https://github.com/mohamadysn/FaceGate)
+**Developed by [Mohamad Yassine](https://github.com/mohamadysn)**
 
 **License:** [MIT](LICENSE)
 
