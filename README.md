@@ -35,7 +35,14 @@ FaceGate/
     └── tests/
 ```
 
-Personal gallery embeddings, calibration images, and logs are **gitignored**.
+Personal gallery embeddings, calibration images, and logs are **gitignored** — they are **not** pushed to GitHub when you clone or install on another PC.
+
+After `pip install` on Windows, the gallery lives in:
+
+`%LOCALAPPDATA%\FaceGate\gallery\`  
+(ex. `C:\Users\TonNom\AppData\Local\FaceGate\gallery\`)
+
+To move your gallery from Linux to Windows: **Gallery → Export** (ZIP) on the old machine, then **Gallery → Import** on Windows.
 
 ## Supported platforms
 

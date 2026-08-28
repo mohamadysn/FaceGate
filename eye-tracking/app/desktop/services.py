@@ -14,10 +14,12 @@ from common.face_recognition import FaceGallery, FaceRecognizer
 from common.profiles import RuntimeProfile, get_profile
 from common.quality import assess_face_quality, is_frontal_enough
 
+from .platform_util import resolve_gallery_dir
+
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 _ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_GALLERY = _ROOT / "face-recognition" / "gallery"
+DEFAULT_GALLERY = resolve_gallery_dir(_ROOT)
 
 
 class AppServices:

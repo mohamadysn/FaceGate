@@ -91,3 +91,68 @@ def desktop_directory() -> Path:
 
 def launch_log_path() -> Path:
     return Path(tempfile.gettempdir()) / "facegate-launch.log"
+
+
+def user_data_dir() -> Path:
+    """Per-user FaceGate data root (gallery, future settings)."""
+    if is_windows():
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        path = base / "FaceGate"
+    elif is_macos():
+        path = Path.home() / "Library" / "Application Support" / "FaceGate"
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+        path = base / "FaceGate"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def repo_gallery_dir(eye_tracking_root: Path) -> Path:
+    return eye_tracking_root / "face-recognition" / "gallery"
+
+
+def _is_installed_package(eye_tracking_root: Path) -> bool:
+    root = str(eye_tracking_root).lower()
+    return "site-packages" in root or "dist-packages" in root
+
+
+def _migrate_gallery_if_needed(src: Path, dst: Path) -> None:
+    """Copy repo gallery into user folder once if user gallery is still empty."""
+    if (dst / "gallery.json").is_file():
+        return
+    if not (src / "gallery.json").is_file():
+        return
+    import shutil
+
+    for name in ("gallery.json", "embeddings.npy"):
+        s = src / name
+        if s.is_file():
+            shutil.copy2(s, dst / name)
+
+
+def resolve_gallery_dir(eye_tracking_root: Path) -> Path:
+    """
+    Return the gallery directory for the desktop app.
+
+    - ``FACEGATE_GALLERY`` env var overrides everything.
+    - pip / PyInstaller install → ``%LOCALAPPDATA%\\FaceGate\\gallery`` (Windows),
+      ``~/.local/share/FaceGate/gallery`` (Linux), etc.
+    - Git clone / editable dev → ``eye-tracking/face-recognition/gallery``.
+    """
+    override = os.environ.get("FACEGATE_GALLERY")
+    if override:
+        path = Path(override).expanduser().resolve()
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    repo_gallery = repo_gallery_dir(eye_tracking_root)
+    user_gallery = user_data_dir() / "gallery"
+    user_gallery.mkdir(parents=True, exist_ok=True)
+
+    if _is_installed_package(eye_tracking_root):
+        _migrate_gallery_if_needed(repo_gallery, user_gallery)
+        return user_gallery
+
+    if repo_gallery.is_dir():
+        return repo_gallery
+    return user_gallery

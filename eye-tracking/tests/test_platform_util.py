@@ -19,6 +19,8 @@ from app.desktop.platform_util import (
     is_macos,
     is_windows,
     launch_log_path,
+    resolve_gallery_dir,
+    repo_gallery_dir,
     ui_font,
 )
 
@@ -69,6 +71,26 @@ class PlatformUtilTests(unittest.TestCase):
     def test_desktop_directory_returns_path(self) -> None:
         path = desktop_directory()
         self.assertIsInstance(path, Path)
+
+    def test_resolve_gallery_repo_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            eye = Path(tmp) / "eye-tracking"
+            gallery = repo_gallery_dir(eye)
+            gallery.mkdir(parents=True)
+            (gallery / "gallery.json").write_text("{}", encoding="utf-8")
+            resolved = resolve_gallery_dir(eye)
+            self.assertEqual(resolved, gallery)
+
+    def test_resolve_gallery_installed_uses_user_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fake_site = Path(tmp) / "site-packages" / "eye-tracking"
+            fake_site.mkdir(parents=True)
+            with mock.patch("app.desktop.platform_util.user_data_dir") as udd:
+                user_root = Path(tmp) / "userdata"
+                user_root.mkdir()
+                udd.return_value = user_root
+                resolved = resolve_gallery_dir(fake_site)
+                self.assertEqual(resolved, user_root / "gallery")
 
 
 if __name__ == "__main__":

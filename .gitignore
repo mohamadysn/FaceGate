@@ -15,9 +15,11 @@ build/
 .coverage
 htmlcov/
 
-# --- Local / personal data (do not push) ---
-eye-tracking/face-recognition/gallery/embeddings.npy
-eye-tracking/face-recognition/gallery/gallery.json
+# --- Local / personal data (NEVER push — biometric embeddings) ---
+eye-tracking/face-recognition/gallery/*
+!eye-tracking/face-recognition/gallery/.gitkeep
+**/facegate-gallery*.zip
+**/gallery-backup*.zip
 eye-tracking/camera-calibration/calib_imgs/
 eye-tracking/gaze-estimation/artifacts/
 eye-tracking/performance-metrics/logs/
