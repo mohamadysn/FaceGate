@@ -177,8 +177,13 @@ class FaceRecogApp:
                 profile.height,
                 fps=30,
             )
+            used = getattr(cap, "facegate_index", self.services.camera_index)
+            if used != self.services.camera_index:
+                self.services.camera_index = int(used)
             self._cap = cap
-            self._set_status(f"Live · {profile.name} · galerie {len(self.services.gallery())}")
+            self._set_status(
+                f"Live · cam {used} · {profile.name} · galerie {len(self.services.gallery())}"
+            )
             fps = 0.0
             prev = time.time()
             while not self._stop_flags["live"]:

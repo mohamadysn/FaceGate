@@ -90,11 +90,20 @@ class CameraHelperTests(unittest.TestCase):
 
     def test_backends_by_platform(self) -> None:
         with mock.patch("common.camera_io.sys.platform", "win32"):
-            self.assertIn(cv2.CAP_DSHOW, preferred_camera_backends())
+            backends = preferred_camera_backends()
+            self.assertIn(cv2.CAP_DSHOW, backends)
+            self.assertIn(cv2.CAP_MSMF, backends)
         with mock.patch("common.camera_io.sys.platform", "darwin"):
             self.assertIn(cv2.CAP_AVFOUNDATION, preferred_camera_backends())
         with mock.patch("common.camera_io.sys.platform", "linux"):
             self.assertIn(cv2.CAP_V4L2, preferred_camera_backends())
+
+    def test_camera_troubleshooting_hint_windows(self) -> None:
+        from common.camera_io import camera_troubleshooting_hint
+
+        with mock.patch("common.camera_io.sys.platform", "win32"):
+            hint = camera_troubleshooting_hint()
+            self.assertIn("Privacy", hint)
 
     def test_resize_for_inference(self) -> None:
         frame = np.zeros((1000, 800, 3), dtype=np.uint8)

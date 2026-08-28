@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sys
 import time
-from typing import Iterable, List, Sequence, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -25,11 +25,67 @@ def preferred_camera_backends() -> List[int]:
     if sys.platform.startswith("linux"):
         return [cv2.CAP_V4L2, cv2.CAP_ANY]
     if sys.platform == "win32":
-        # DirectShow is often more reliable for USB webcams than MSMF alone.
-        return [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_ANY]
+        # MSMF first on recent Windows; DSHOW as fallback for older USB drivers.
+        return [cv2.CAP_MSMF, cv2.CAP_DSHOW]
     if sys.platform == "darwin":
         return [cv2.CAP_AVFOUNDATION, cv2.CAP_ANY]
     return [cv2.CAP_ANY]
+
+
+def _backend_label(backend: int) -> str:
+    labels = {
+        cv2.CAP_DSHOW: "DirectShow",
+        cv2.CAP_MSMF: "Media Foundation",
+        cv2.CAP_V4L2: "V4L2",
+        cv2.CAP_AVFOUNDATION: "AVFoundation",
+        cv2.CAP_ANY: "ANY",
+    }
+    return labels.get(backend, str(backend))
+
+
+def _capture_reads_frame(cap: cv2.VideoCapture, attempts: int = 3) -> bool:
+    """True if the device delivers at least one valid frame (Windows often lies on isOpened)."""
+    for _ in range(max(1, attempts)):
+        ok, frame = cap.read()
+        if ok and frame is not None and frame.size > 0:
+            return True
+        time.sleep(0.05)
+    return False
+
+
+def _try_open_capture(index: int, backend: int) -> Optional[cv2.VideoCapture]:
+    try:
+        cap = cv2.VideoCapture(index, backend)
+    except Exception:
+        return None
+    if not cap.isOpened():
+        cap.release()
+        return None
+    if not _capture_reads_frame(cap):
+        cap.release()
+        return None
+    return cap
+
+
+def _indices_to_probe(primary: int, max_index: int = 4) -> List[int]:
+    order = [primary]
+    for i in range(max_index + 1):
+        if i not in order:
+            order.append(i)
+    return order
+
+
+def camera_troubleshooting_hint() -> str:
+    if sys.platform == "win32":
+        return (
+            "Windows camera checklist:\n"
+            "• Settings → Privacy → Camera → allow desktop apps\n"
+            "• Close Zoom, Teams, or other apps using the webcam\n"
+            "• FaceGate → Settings → try camera index 0, 1, or 2\n"
+            "• Use pip package opencv-python (not opencv-python-headless)\n"
+            "• Replug the USB webcam or reboot if the driver is stuck"
+        )
+    return "Check that another app is not using the camera and try another camera index in Settings."
 
 
 def open_camera(
@@ -37,12 +93,15 @@ def open_camera(
     width: int = 640,
     height: int = 480,
     fps: int = 30,
+    *,
+    auto_probe: bool = True,
+    max_index: int = 4,
 ) -> cv2.VideoCapture:
     """
     Open a webcam and request a capture resolution / frame rate.
 
-    Uses a platform-appropriate backend, then MJPEG + a short buffer when
-    available so USB webcams stay responsive instead of queuing stale frames.
+    Uses a platform-appropriate backend, verifies that frames can be read,
+    and on Windows may scan indices 0…max_index when the requested index fails.
 
     Parameters
     ----------
@@ -52,6 +111,10 @@ def open_camera(
         Requested frame size. The driver may return a different size.
     fps :
         Requested FPS. Use ``0`` to keep the camera default.
+    auto_probe :
+        If True, try other indices when ``index`` fails (recommended on Windows).
+    max_index :
+        Highest index to probe when ``auto_probe`` is enabled.
 
     Returns
     -------
@@ -63,28 +126,43 @@ def open_camera(
     RuntimeError
         If the device cannot be opened.
     """
-    cap = None
-    for backend in preferred_camera_backends():
-        try:
-            candidate = cv2.VideoCapture(index, backend)
-        except Exception:
-            continue
-        if candidate.isOpened():
+    backends = preferred_camera_backends()
+    indices = _indices_to_probe(index, max_index) if auto_probe else [index]
+    tried: List[str] = []
+    cap: Optional[cv2.VideoCapture] = None
+    opened_index = index
+
+    for idx in indices:
+        for backend in backends:
+            candidate = _try_open_capture(idx, backend)
+            label = f"index={idx} backend={_backend_label(backend)}"
+            if candidate is None:
+                tried.append(label)
+                continue
             cap = candidate
+            opened_index = idx
             break
-        candidate.release()
+        if cap is not None:
+            break
 
-    if cap is None or not cap.isOpened():
-        # Last resort without an explicit backend.
-        cap = cv2.VideoCapture(index)
-    if not cap.isOpened():
-        raise RuntimeError(f"Cannot open camera index={index} on {sys.platform}")
+    if cap is None:
+        detail = "; ".join(tried[:8])
+        if len(tried) > 8:
+            detail += f"; … ({len(tried)} attempts)"
+        raise RuntimeError(
+            f"Cannot open a webcam on {sys.platform} (requested index={index}).\n"
+            f"Tried: {detail}\n\n{camera_troubleshooting_hint()}"
+        )
 
-    # MJPEG reduces USB bandwidth on many webcams (Linux/Windows); ignore failures.
-    try:
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-    except Exception:
+    # MJPEG helps on Linux USB cams but often breaks DirectShow on Windows.
+    if not sys.platform.startswith("linux"):
         pass
+    else:
+        try:
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        except Exception:
+            pass
+
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, float(width))
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, float(height))
     if fps > 0:
@@ -92,12 +170,13 @@ def open_camera(
             cap.set(cv2.CAP_PROP_FPS, float(fps))
         except Exception:
             pass
-    # Drop buffered frames so the latest image is shown (less "laggy" feel).
     try:
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     except Exception:
         pass
 
+    # Resolved index when auto_probe picked another device (optional for logging).
+    cap.facegate_index = opened_index  # type: ignore[attr-defined]
     return cap
 
 
